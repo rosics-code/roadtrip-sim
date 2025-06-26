@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cape Coral Road Trip Sim 🚗🌴</title>
+  <title>Cape Coral Road Trip Sim w/ Radio 🚗🌴🎶</title>
   <style>
     html, body {
       margin: 0; padding: 0; overflow: hidden;
@@ -13,76 +13,85 @@
     #bg {
       position: fixed; inset: 0; z-index: -1;
     }
-    iframe {
-      width: 100%; height: 100%; border: none;
+    #player {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
     #overlay {
       position: absolute;
       top: 20px; left: 20px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       padding: 15px;
       border-radius: 12px;
       backdrop-filter: blur(5px);
-      width: 300px;
+      width: 320px;
+      max-width: 90vw;
     }
     #overlay h1 {
       margin: 0 0 10px 0;
       font-size: 1.2rem;
     }
-    .bar {
-      background: #444;
-      border-radius: 5px;
-      overflow: hidden;
-      height: 10px;
-      margin: 5px 0 15px;
-    }
-    .fill {
-      height: 10px;
-      background: limegreen;
-      width: 100%;
-      transition: width 0.3s ease;
+    #speed {
+      font-weight: bold;
     }
     #event {
       margin-top: 10px;
       font-size: 0.9rem;
       font-style: italic;
     }
-    @media (max-width: 500px) {
-      #overlay {
-        width: 90%;
-        left: 5%;
-        font-size: 14px;
-      }
+    #radioControls {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    button {
+      background: #222;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #555;
     }
   </style>
 </head>
 <body>
   <div id="bg">
-    <iframe
-      src="https://www.youtube.com/embed/JMSksf4OCZQ?autoplay=1&mute=1&controls=0&loop=1&playlist=JMSksf4OCZQ"
-      allow="autoplay; fullscreen"
-      allowfullscreen
-      ></iframe>
+    <div id="player"></div>
   </div>
 
   <div id="overlay">
     <h1>🌴 Cape Coral Road Trip Sim</h1>
-    <div><strong>Location:</strong> <span id="location">Cape Coral Parkway</span></div>
-    <div><strong>Fuel:</strong>
-      <div class="bar"><div id="fuelBar" class="fill"></div></div>
-    </div>
+    <div><strong>Location:</strong> <span id="location">Loading...</span></div>
     <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
     <div id="event">Smooth driving in paradise ☀️</div>
+
+    <div id="radioControls">
+      <audio id="radio" src="https://playerservices.streamtheworld.com/api/livestream-redirect/WNCLFM_SC" controls autoplay loop></audio>
+      <button id="muteBtn">Mute Radio</button>
+    </div>
   </div>
 
   <script>
+    // Load YouTube IFrame API async
+    let tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+
+    let player;
     const locations = {
       0: "Cape Coral Parkway",
-      180: "Veterans Parkway",
-      360: "Del Prado Blvd",
-      540: "Pine Island Road",
-      720: "Gator Alley 👀",
-      900: "Leaving Cape Coral 🚦"
+      90: "Del Prado Boulevard",
+      180: "NE Pine Island Road",
+      270: "Chiquita Boulevard",
+      360: "Veterans Parkway",
+      420: "Burnt Store Road",
+      480: "Leaving Cape Coral"
     };
 
     const events = [
@@ -94,40 +103,64 @@
       "Road work... again. Classic Florida 🧱"
     ];
 
-    let currentTime = 0;
-    let fuel = 100;
-    const maxTime = 900;
-
     const locationDisplay = document.getElementById("location");
-    const fuelBar = document.getElementById("fuelBar");
     const speedDisplay = document.getElementById("speed");
     const eventBox = document.getElementById("event");
+    const radio = document.getElementById("radio");
+    const muteBtn = document.getElementById("muteBtn");
 
-    setInterval(() => {
-      currentTime += 5;
-      fuel -= 0.3;
-
-      let currentLoc = "Cape Coral Parkway";
-      for (const t in locations) {
-        if (currentTime >= t) currentLoc = locations[t];
+    muteBtn.addEventListener('click', () => {
+      if(radio.muted) {
+        radio.muted = false;
+        muteBtn.textContent = "Mute Radio";
+      } else {
+        radio.muted = true;
+        muteBtn.textContent = "Unmute Radio";
       }
-      locationDisplay.textContent = currentLoc;
+    });
 
-      speedDisplay.textContent = Math.floor(50 + Math.random() * 15);
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: 'JMSksf4OCZQ',
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          controls: 0,
+          loop: 1,
+          playlist: 'JMSksf4OCZQ',
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 0
+        },
+        events: {
+          onReady: () => {
+            player.playVideo();
+            startSim();
+          }
+        }
+      });
+    }
 
-      fuelBar.style.width = `${Math.max(fuel, 0)}%`;
-      fuelBar.style.background = fuel < 20 ? "red" : "limegreen";
+    function startSim() {
+      setInterval(() => {
+        const currentTime = player.getCurrentTime();
 
-      if (Math.random() < 0.3) {
-        eventBox.textContent = events[Math.floor(Math.random() * events.length)];
-      }
+        // Update location based on current time
+        let currentLoc = "Cape Coral Parkway";
+        for (const t in locations) {
+          if (currentTime >= t) currentLoc = locations[t];
+        }
+        locationDisplay.textContent = currentLoc;
 
-      if (currentTime >= maxTime) {
-        currentTime = 0;
-        fuel = 100;
-        eventBox.textContent = "Trip restarted. Back on the road 🚗💨";
-      }
-    }, 2000);
+        // Speed random between 50-65 mph
+        speedDisplay.textContent = Math.floor(50 + Math.random() * 15);
+
+        // Random event with 30% chance
+        if (Math.random() < 0.3) {
+          eventBox.textContent = events[Math.floor(Math.random() * events.length)];
+        }
+      }, 2000);
+    }
   </script>
 </body>
 </html>
