@@ -1,222 +1,145 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cape Coral Road Trip + SoundCloud Selector</title>
+  <title>✨ Cape Coral Road Trip Sim ✨</title>
   <style>
     html, body {
-      margin: 0; padding: 0; height: 100vh; overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0; padding: 0;
+      height: 100vh;
+      font-family: sans-serif;
       background: black;
-      color: white;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden;
     }
     #yt-player {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: -1;
     }
     #overlay {
       position: absolute;
       top: 20px; left: 20px;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.6);
       padding: 15px;
-      border-radius: 12px;
-      backdrop-filter: blur(5px);
-      width: 320px;
-      max-width: 90vw;
-      z-index: 10;
+      border-radius: 10px;
+      color: white;
+      z-index: 2;
     }
-    #audioPlayer {
+    #audioControls {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 340px;
-      height: 72px;
-      background: rgba(255 255 255 / 0.12);
-      border-radius: 9999px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      bottom: 20px; right: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 15px;
+      border-radius: 15px;
       display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      z-index: 2;
       color: white;
-      user-select: none;
-      transition: background 0.3s ease;
-      cursor: default;
-      z-index: 25;
-      font-weight: 600;
-      font-size: 15px;
-      flex-wrap: nowrap;
     }
-    #audioPlayer:hover {
-      background: rgba(255 255 255 / 0.2);
+    iframe {
+      border-radius: 10px;
     }
-    select {
-      background: rgba(255 255 255 / 0.2);
-      border: none;
-      border-radius: 9999px;
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
+    button, select {
       padding: 6px 12px;
-      cursor: pointer;
-      flex-shrink: 0;
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-    }
-    select:hover {
-      background: rgba(255 255 255 / 0.4);
-      color: #0ff;
-    }
-    button {
-      background: rgba(255 255 255 / 0.3);
+      border-radius: 20px;
       border: none;
-      border-radius: 9999px;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 18px;
-      transition: background 0.25s ease;
+      background: #0ff;
+      color: black;
+      font-weight: bold;
       cursor: pointer;
-      flex-shrink: 0;
-      user-select: none;
     }
-    button:hover {
-      background: rgba(255 255 255 / 0.5);
-      color: #0ff;
+    button:hover, select:hover {
+      background: white;
     }
   </style>
 </head>
 <body>
 
-<!-- YouTube video embed as background -->
+<!-- YouTube Video Background (muted + loop) -->
 <iframe
   id="yt-player"
   src="https://www.youtube.com/embed/9kCM0ZBvlPI?autoplay=1&mute=1&loop=1&playlist=9kCM0ZBvlPI&controls=0&modestbranding=1&rel=0"
   frameborder="0"
-  allow="autoplay; encrypted-media"
+  allow="autoplay"
   allowfullscreen
 ></iframe>
 
+<!-- Info Overlay -->
 <div id="overlay">
-  <h1>🌴 Cape Coral Road Trip Sim</h1>
-  <div><strong>Location:</strong> Hancock Bridge Parkway</div>
-  <div><strong>Speed:</strong> 63 mph</div>
-  <div>Smooth driving in paradise ☀️</div>
+  <h2>🚗 Cape Coral Road Trip Sim</h2>
+  <p>Location: Hancock Bridge Pkwy</p>
+  <p>Speed: 62 mph</p>
 </div>
 
-<div id="audioPlayer" tabindex="0" aria-label="Audio player controls">
-  <select id="scTrackSelect" aria-label="Choose SoundCloud track">
+<!-- Music / Radio UI -->
+<div id="audioControls">
+  <label for="trackSelect">🎵 Pick a vibe:</label>
+  <select id="trackSelect">
+    <option value="1219451051">Juice WRLD – Lofi Remix</option>
+    <option value="991304810">Juice WRLD Type Beat</option>
     <option value="293">Chillhop Essentials</option>
-    <option value="70387559">Juice WRLD - Lucid Dreams</option>
-    <option value="241083181">Lo-Fi Beats</option>
   </select>
 
-  <button id="btnToggleSource" aria-label="Switch audio source">📻</button>
-  <button id="btnPlayPause" aria-label="Play or pause audio">▶️</button>
+  <button id="toggleBtn">🔀 Switch to Radio</button>
+
+  <!-- SoundCloud Embed -->
+  <div id="scPlayer" style="display:block;">
+    <iframe
+      id="scIframe"
+      width="100%"
+      height="166"
+      scrolling="no"
+      frameborder="no"
+      allow="autoplay"
+      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1219451051&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=true">
+    </iframe>
+  </div>
+
+  <!-- Radio Audio -->
+  <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" preload="auto"></audio>
 </div>
 
-<!-- SoundCloud embed iframe container -->
-<div id="scEmbedContainer" style="display:none; position: fixed; bottom: 100px; right: 24px; width: 340px; height: 166px; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 30px rgba(0,0,0,0.4); z-index: 30;"></div>
-
-<!-- Live radio audio -->
-<audio id="radioAudio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" preload="auto" crossorigin="anonymous"></audio>
-
 <script>
-  const scTrackSelect = document.getElementById('scTrackSelect');
-  const btnToggleSource = document.getElementById('btnToggleSource');
-  const btnPlayPause = document.getElementById('btnPlayPause');
-  const scEmbedContainer = document.getElementById('scEmbedContainer');
-  const radioAudio = document.getElementById('radioAudio');
+  const trackSelect = document.getElementById("trackSelect");
+  const scIframe = document.getElementById("scIframe");
+  const scPlayer = document.getElementById("scPlayer");
+  const radio = document.getElementById("radio");
+  const toggleBtn = document.getElementById("toggleBtn");
 
-  let currentSource = 'soundcloud';
-  let isPlaying = false;
+  let usingRadio = false;
 
-  // Helper to get embed iframe src URL for track id
-  function getSCEmbedSrc(trackId) {
-    return `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=true&color=ff5500`;
+  function updateSoundCloudEmbed(id) {
+    scIframe.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${id}&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=true`;
   }
 
-  // Show the SoundCloud embed iframe
-  function showSCEmbed(trackId) {
-    scEmbedContainer.innerHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="${getSCEmbedSrc(trackId)}"></iframe>`;
-    scEmbedContainer.style.display = 'block';
-  }
+  trackSelect.addEventListener("change", () => {
+    if (!usingRadio) {
+      const id = trackSelect.value;
+      updateSoundCloudEmbed(id);
+    }
+  });
 
-  // Hide SoundCloud embed iframe
-  function hideSCEmbed() {
-    scEmbedContainer.innerHTML = '';
-    scEmbedContainer.style.display = 'none';
-  }
+  toggleBtn.addEventListener("click", () => {
+    usingRadio = !usingRadio;
 
-  // Play / pause button toggle text
-  function updatePlayPauseButton() {
-    btnPlayPause.textContent = isPlaying ? '⏸️' : '▶️';
-  }
-
-  // Start with SoundCloud embed for the selected track
-  showSCEmbed(scTrackSelect.value);
-
-  btnPlayPause.addEventListener('click', () => {
-    // For embed iframe, play/pause control is limited; toggling is kinda just reloading or not.
-    // So we’ll fake the UI toggling here for vibes.
-    if (isPlaying) {
-      // Pause = just hide embed & stop radio
-      if (currentSource === 'soundcloud') {
-        hideSCEmbed();
-      } else {
-        radioAudio.pause();
-      }
-      isPlaying = false;
+    if (usingRadio) {
+      scPlayer.style.display = "none";
+      radio.play();
+      toggleBtn.textContent = "🎶 Switch to SoundCloud";
     } else {
-      // Play
-      if (currentSource === 'soundcloud') {
-        showSCEmbed(scTrackSelect.value);
-      } else {
-        radioAudio.play();
-      }
-      isPlaying = true;
-    }
-    updatePlayPauseButton();
-  });
-
-  btnToggleSource.addEventListener('click', () => {
-    if (currentSource === 'soundcloud') {
-      currentSource = 'radio';
-      hideSCEmbed();
-      radioAudio.play();
-      isPlaying = true;
-      updatePlayPauseButton();
-    } else {
-      currentSource = 'soundcloud';
-      radioAudio.pause();
-      showSCEmbed(scTrackSelect.value);
-      isPlaying = true;
-      updatePlayPauseButton();
+      radio.pause();
+      scPlayer.style.display = "block";
+      const id = trackSelect.value;
+      updateSoundCloudEmbed(id);
+      toggleBtn.textContent = "🔀 Switch to Radio";
     }
   });
-
-  scTrackSelect.addEventListener('change', () => {
-    if (currentSource === 'soundcloud') {
-      showSCEmbed(scTrackSelect.value);
-      isPlaying = true;
-      updatePlayPauseButton();
-    }
-  });
-
-  // Auto start muted YouTube video handled by embed URL params
 </script>
+
 </body>
 </html>
