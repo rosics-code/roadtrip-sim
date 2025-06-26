@@ -2,46 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cape Coral Road Trip Sim 🚗🌴</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
+      margin: 0; padding: 0; overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
-      background: black;
-      color: white;
+      background: black; color: white;
     }
-
     #bg {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
+      position: fixed; inset: 0; z-index: -1;
     }
-
     iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+      width: 100%; height: 100%; border: none;
     }
-
     #overlay {
       position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.6);
+      top: 20px; left: 20px;
+      background: rgba(0,0,0,0.6);
       padding: 15px;
       border-radius: 12px;
       backdrop-filter: blur(5px);
       width: 300px;
     }
-
     #overlay h1 {
-      margin: 0 0 10px;
+      margin: 0 0 10px 0;
       font-size: 1.2rem;
     }
-
     .bar {
       background: #444;
       border-radius: 5px;
@@ -49,20 +36,17 @@
       height: 10px;
       margin: 5px 0 15px;
     }
-
     .fill {
       height: 10px;
       background: limegreen;
       width: 100%;
       transition: width 0.3s ease;
     }
-
     #event {
       margin-top: 10px;
       font-size: 0.9rem;
       font-style: italic;
     }
-
     @media (max-width: 500px) {
       #overlay {
         width: 90%;
@@ -74,15 +58,15 @@
 </head>
 <body>
   <div id="bg">
-    <iframe 
-      src="https://www.youtube.com/embed/1gj_W9LUH-o?autoplay=1&mute=1&controls=0&loop=1&playlist=1gj_W9LUH-o"
+    <iframe
+      src="https://www.youtube.com/embed/JMSksf4OCZQ?autoplay=1&mute=1&controls=0&loop=1&playlist=JMSksf4OCZQ"
       allow="autoplay; fullscreen"
-      allowfullscreen>
-    </iframe>
+      allowfullscreen
+      ></iframe>
   </div>
 
   <div id="overlay">
-    <h1>🌴 Cape Coral Drive Sim</h1>
+    <h1>🌴 Cape Coral Road Trip Sim</h1>
     <div><strong>Location:</strong> <span id="location">Cape Coral Parkway</span></div>
     <div><strong>Fuel:</strong>
       <div class="bar"><div id="fuelBar" class="fill"></div></div>
