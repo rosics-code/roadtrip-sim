@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cape Coral Road Trip Sim w/ Radio Garden 🚗🌴🎶</title>
+<title>Cape Coral Road Trip w/ Radio Browser 🚗🌴📻</title>
 <style>
   html, body {
     margin: 0; padding: 0; overflow: hidden;
@@ -47,18 +47,25 @@
     font-style: italic;
   }
   #radioBar {
-    flex: 0 0 60px;
+    flex: 0 0 50px;
     background: #111;
     display: flex;
     align-items: center;
     padding: 0 15px;
     border-top: 1px solid #222;
+    gap: 10px;
   }
-  #radioBar iframe {
+  #radioBar button {
+    background: #222;
     border: none;
-    width: 100%;
-    height: 50px;
-    border-radius: 12px;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #radioBar button:hover {
+    background: #555;
   }
 </style>
 </head>
@@ -74,13 +81,8 @@
   </div>
 
   <div id="radioBar">
-    <iframe 
-      src="https://radio.garden/listen/wgcu/jmEpprLE" 
-      allow="autoplay" 
-      scrolling="no"
-      sandbox="allow-scripts allow-same-origin allow-popups"
-      >
-    </iframe>
+    <audio id="radio" autoplay muted></audio>
+    <button id="muteBtn">Unmute Radio</button>
   </div>
 
   <script>
@@ -112,6 +114,18 @@
     const locationDisplay = document.getElementById("location");
     const speedDisplay = document.getElementById("speed");
     const eventBox = document.getElementById("event");
+    const radio = document.getElementById("radio");
+    const muteBtn = document.getElementById("muteBtn");
+
+    muteBtn.addEventListener('click', () => {
+      if (radio.muted) {
+        radio.muted = false;
+        muteBtn.textContent = "Mute Radio";
+      } else {
+        radio.muted = true;
+        muteBtn.textContent = "Unmute Radio";
+      }
+    });
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
@@ -130,6 +144,7 @@
           onReady: () => {
             player.playVideo();
             startSim();
+            loadRadioStream();
           }
         }
       });
@@ -154,6 +169,24 @@
           eventBox.textContent = events[Math.floor(Math.random() * events.length)];
         }
       }, 2000);
+    }
+
+    async function loadRadioStream() {
+      try {
+        const response = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=United States&state=Florida&limit=10');
+        const stations = await response.json();
+        // Filter for Cape Coral or something close (if you want)
+        const capeCoralStations = stations.filter(s => s.name.toLowerCase().includes('cape coral') || s.state.toLowerCase().includes('florida'));
+        const station = capeCoralStations[0] || stations[0]; // fallback to first if no cape coral
+        if (station && station.url_resolved) {
+          radio.src = station.url_resolved;
+          radio.play().catch(() => console.log('Autoplay blocked, user interaction needed'));
+        } else {
+          console.log('No station found with stream URL');
+        }
+      } catch (e) {
+        console.error('Failed to load radio stream:', e);
+      }
     }
   </script>
 </body>
