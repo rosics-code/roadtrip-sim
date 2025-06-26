@@ -1,80 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cape Coral Road Trip Sim w/ Radio 🚗🌴🎶</title>
-  <style>
-    html, body {
-      margin: 0; padding: 0; overflow: hidden;
-      font-family: 'Segoe UI', sans-serif;
-      background: black; color: white;
-    }
-    #bg {
-      position: fixed; inset: 0; z-index: -1;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    #overlay {
-      position: absolute;
-      top: 20px; left: 20px;
-      background: rgba(0,0,0,0.7);
-      padding: 15px;
-      border-radius: 12px;
-      backdrop-filter: blur(5px);
-      width: 320px;
-      max-width: 90vw;
-    }
-    #overlay h1 {
-      margin: 0 0 10px 0;
-      font-size: 1.2rem;
-    }
-    #speed {
-      font-weight: bold;
-    }
-    #event {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      font-style: italic;
-    }
-    #radioControls {
-      margin-top: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    button {
-      background: #222;
-      border: none;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #555;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cape Coral Road Trip Sim w/ Radio Garden 🚗🌴🎶</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+    background: black; color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  #bg {
+    flex: 1 1 auto;
+    position: relative;
+    overflow: hidden;
+  }
+  #player {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  #overlay {
+    position: absolute;
+    top: 20px; left: 20px;
+    background: rgba(0,0,0,0.7);
+    padding: 15px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    width: 320px;
+    max-width: 90vw;
+    z-index: 10;
+  }
+  #overlay h1 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+  }
+  #speed {
+    font-weight: bold;
+  }
+  #event {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+  #radioBar {
+    flex: 0 0 60px;
+    background: #111;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    border-top: 1px solid #222;
+  }
+  #radioBar iframe {
+    border: none;
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+  }
+</style>
 </head>
 <body>
   <div id="bg">
     <div id="player"></div>
+    <div id="overlay">
+      <h1>🌴 Cape Coral Road Trip Sim</h1>
+      <div><strong>Location:</strong> <span id="location">Loading...</span></div>
+      <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
+      <div id="event">Smooth driving in paradise ☀️</div>
+    </div>
   </div>
 
-  <div id="overlay">
-    <h1>🌴 Cape Coral Road Trip Sim</h1>
-    <div><strong>Location:</strong> <span id="location">Loading...</span></div>
-    <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
-    <div id="event">Smooth driving in paradise ☀️</div>
-
-    <div id="radioControls">
-      <audio id="radio" src="https://playerservices.streamtheworld.com/api/livestream-redirect/WNCLFM_SC" controls autoplay loop></audio>
-      <button id="muteBtn">Mute Radio</button>
-    </div>
+  <div id="radioBar">
+    <iframe 
+      src="https://radio.garden/listen/wgcu/jmEpprLE" 
+      allow="autoplay" 
+      scrolling="no"
+      sandbox="allow-scripts allow-same-origin allow-popups"
+      >
+    </iframe>
   </div>
 
   <script>
@@ -106,18 +112,6 @@
     const locationDisplay = document.getElementById("location");
     const speedDisplay = document.getElementById("speed");
     const eventBox = document.getElementById("event");
-    const radio = document.getElementById("radio");
-    const muteBtn = document.getElementById("muteBtn");
-
-    muteBtn.addEventListener('click', () => {
-      if(radio.muted) {
-        radio.muted = false;
-        muteBtn.textContent = "Mute Radio";
-      } else {
-        radio.muted = true;
-        muteBtn.textContent = "Unmute Radio";
-      }
-    });
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
