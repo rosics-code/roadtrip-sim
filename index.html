@@ -1,79 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cape Coral Road Trip Sim 🚗🌴 + Chill Radio</title>
-<style>
-  html, body {
-    margin: 0; padding: 0; overflow: hidden;
-    font-family: 'Segoe UI', sans-serif;
-    background: black; color: white;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  #bg {
-    flex: 1 1 auto;
-    position: relative;
-    overflow: hidden;
-  }
-  #player {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  #overlay {
-    position: absolute;
-    top: 20px; left: 20px;
-    background: rgba(0,0,0,0.7);
-    padding: 15px;
-    border-radius: 12px;
-    backdrop-filter: blur(5px);
-    width: 320px;
-    max-width: 90vw;
-    z-index: 10;
-  }
-  #overlay h1 {
-    margin: 0 0 10px 0;
-    font-size: 1.3rem;
-  }
-  #speed {
-    font-weight: bold;
-  }
-  #event {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    font-style: italic;
-  }
-  #radioBar {
-    flex: 0 0 60px;
-    background: #111;
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    border-top: 1px solid #222;
-    gap: 12px;
-  }
-  #radioBar button {
-    background: #222;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.3s ease;
-  }
-  #radioBar button:hover {
-    background: #555;
-  }
-  #radioLabel {
-    color: #eee;
-    font-size: 1rem;
-    user-select: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cape Coral Road Trip Sim with Dual Audio Controls</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      background: black; color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #bg {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    #player {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    #overlay {
+      position: absolute;
+      top: 20px; left: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 15px;
+      border-radius: 12px;
+      backdrop-filter: blur(5px);
+      width: 320px;
+      max-width: 90vw;
+      z-index: 10;
+    }
+    #overlay h1 {
+      margin: 0 0 10px 0;
+      font-size: 1.3rem;
+    }
+    #speed {
+      font-weight: bold;
+    }
+    #event {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    #radioBox {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px 15px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 20;
+      width: 210px;
+      font-size: 14px;
+      user-select: none;
+    }
+    #radioControls {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      gap: 8px;
+    }
+    button {
+      background: #222;
+      border: none;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #555;
+    }
+    audio {
+      width: 100%;
+      outline: none;
+    }
+  </style>
 </head>
 <body>
   <div id="bg">
@@ -84,12 +96,15 @@
       <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
       <div id="event">Smooth driving in paradise ☀️</div>
     </div>
-  </div>
-
-  <div id="radioBar">
-    <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
-    <button id="muteBtn">Unmute Radio</button>
-    <div id="radioLabel">Local Cape Coral Radio (KEXP vibes)</div>
+    
+    <div id="radioBox">
+      <div>Local Cape Coral Radio (KEXP vibes)</div>
+      <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
+      <div id="radioControls">
+        <button id="muteRadio">Unmute Radio</button>
+        <button id="muteYT">Unmute Video</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -122,15 +137,28 @@
     const speedDisplay = document.getElementById("speed");
     const eventBox = document.getElementById("event");
     const radio = document.getElementById("radio");
-    const muteBtn = document.getElementById("muteBtn");
+    const muteRadioBtn = document.getElementById("muteRadio");
+    const muteYTBtn = document.getElementById("muteYT");
 
-    muteBtn.addEventListener('click', () => {
+    muteRadioBtn.addEventListener('click', () => {
       if(radio.muted){
         radio.muted = false;
-        muteBtn.textContent = "Mute Radio";
+        muteRadioBtn.textContent = "Mute Radio";
+        radio.play().catch(() => {});
       } else {
         radio.muted = true;
-        muteBtn.textContent = "Unmute Radio";
+        muteRadioBtn.textContent = "Unmute Radio";
+      }
+    });
+
+    muteYTBtn.addEventListener('click', () => {
+      if(!player) return;
+      if(player.isMuted()){
+        player.unMute();
+        muteYTBtn.textContent = "Mute Video";
+      } else {
+        player.mute();
+        muteYTBtn.textContent = "Unmute Video";
       }
     });
 
@@ -160,17 +188,14 @@
       setInterval(() => {
         const currentTime = player.getCurrentTime();
 
-        // Update location based on current time
         let currentLoc = "Cape Coral Parkway";
         for (const t in locations) {
           if (currentTime >= t) currentLoc = locations[t];
         }
         locationDisplay.textContent = currentLoc;
 
-        // Speed random between 50-65 mph
         speedDisplay.textContent = Math.floor(50 + Math.random() * 15);
 
-        // Random event with 30% chance
         if (Math.random() < 0.3) {
           eventBox.textContent = events[Math.floor(Math.random() * events.length)];
         }
