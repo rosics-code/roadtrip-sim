@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cape Coral Road Trip Sim with Mini Radio Player</title>
+  <title>Cape Coral Road Trip Sim - Radio & Video Controls</title>
   <style>
     html, body {
       margin: 0; padding: 0; overflow: hidden;
@@ -43,42 +43,61 @@
     }
     #event {
       margin-top: 10px;
-      font-size: 0.9rem;
       font-style: italic;
+      font-size: 0.9rem;
     }
     #radioMiniPlayer {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       border-radius: 14px;
-      padding: 10px 15px;
+      padding: 12px 16px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       z-index: 20;
-      width: 220px;
+      width: 230px;
       font-size: 14px;
       user-select: none;
-      box-shadow: 0 0 10px #0ff;
+      box-shadow: 0 0 15px #0ff;
     }
-    #radioMiniPlayer button {
+    #radioTitle {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      user-select: text;
+    }
+    #controlsRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 10px;
+    }
+    button {
       background: #222;
       border: none;
       color: white;
-      padding: 6px 10px;
-      border-radius: 8px;
+      padding: 8px 12px;
+      border-radius: 10px;
       cursor: pointer;
       font-weight: 600;
       transition: background 0.3s ease;
-      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 1rem;
+      user-select: none;
     }
-    #radioMiniPlayer button:hover {
+    button:hover {
       background: #0ff;
       color: #000;
     }
-    #radioVolume {
-      width: 80px;
+    #volumeSlider {
+      width: 90px;
     }
     audio {
       display: none; /* hide default controls */
@@ -94,24 +113,30 @@
       <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
       <div id="event">Smooth driving in paradise ☀️</div>
     </div>
+
     <div id="radioMiniPlayer">
-      <div>Local Cape Coral Radio (KEXP vibes)</div>
-      <button id="radioPlayPause">Pause</button>
-      <input type="range" id="radioVolume" min="0" max="1" step="0.05" value="0" />
+      <div id="radioTitle">Local Cape Coral Radio (KEXP vibes)</div>
+      <div id="controlsRow">
+        <button id="radioToggle" aria-label="Toggle radio play/pause">🔈 Pause</button>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0" aria-label="Volume slider" />
+        <button id="videoUnmuteBtn" aria-label="Unmute video audio">🎵 Unmute Video</button>
+      </div>
     </div>
   </div>
 
   <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
 
   <script>
-    // YouTube API load
+    // Load YouTube API
     let tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
 
     let player;
+
     const locations = {
-      0: "Cape Coral Parkway",
+      0: "Hancock Bridge Parkway",
+      31: "Cape Coral Parkway",
       90: "Del Prado Boulevard",
       180: "NE Pine Island Road",
       270: "Chiquita Boulevard",
@@ -132,29 +157,44 @@
     const locationDisplay = document.getElementById("location");
     const speedDisplay = document.getElementById("speed");
     const eventBox = document.getElementById("event");
-
     const radio = document.getElementById("radio");
-    const playPauseBtn = document.getElementById("radioPlayPause");
-    const volumeSlider = document.getElementById("radioVolume");
+    const radioToggle = document.getElementById("radioToggle");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const videoUnmuteBtn = document.getElementById("videoUnmuteBtn");
 
-    playPauseBtn.addEventListener('click', () => {
-      if (radio.paused) {
+    // Radio play/pause toggle
+    radioToggle.addEventListener('click', () => {
+      if(radio.paused){
         radio.play();
-        playPauseBtn.textContent = "Pause";
+        radio.muted = false;
+        radioToggle.textContent = "🔈 Pause";
       } else {
         radio.pause();
-        playPauseBtn.textContent = "Play";
+        radioToggle.textContent = "🔇 Play";
       }
     });
 
+    // Volume slider updates radio volume and auto play/pause
     volumeSlider.addEventListener('input', () => {
       radio.volume = volumeSlider.value;
       if (volumeSlider.value > 0 && radio.paused) {
         radio.play();
-        playPauseBtn.textContent = "Pause";
-      } else if (volumeSlider.value == 0) {
+        radioToggle.textContent = "🔈 Pause";
+      } else if(volumeSlider.value == 0){
         radio.pause();
-        playPauseBtn.textContent = "Play";
+        radioToggle.textContent = "🔇 Play";
+      }
+    });
+
+    // YouTube Unmute toggle
+    videoUnmuteBtn.addEventListener('click', () => {
+      if(!player) return;
+      if(player.isMuted()){
+        player.unMute();
+        videoUnmuteBtn.textContent = "🔈 Mute Video";
+      } else {
+        player.mute();
+        videoUnmuteBtn.textContent = "🎵 Unmute Video";
       }
     });
 
@@ -169,7 +209,8 @@
           playlist: 'JMSksf4OCZQ',
           modestbranding: 1,
           rel: 0,
-          showinfo: 0
+          showinfo: 0,
+          start: 31
         },
         events: {
           onReady: () => {
@@ -184,7 +225,7 @@
       setInterval(() => {
         const currentTime = player.getCurrentTime();
 
-        let currentLoc = "Cape Coral Parkway";
+        let currentLoc = "Hancock Bridge Parkway";
         for (const t in locations) {
           if (currentTime >= t) currentLoc = locations[t];
         }
