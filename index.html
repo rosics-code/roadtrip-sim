@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Cape Coral Road Trip w/ Radio Browser 🚗🌴📻</title>
+<title>Cape Coral Road Trip Sim 🚗🌴 + Chill Radio</title>
 <style>
   html, body {
     margin: 0; padding: 0; overflow: hidden;
@@ -36,7 +36,7 @@
   }
   #overlay h1 {
     margin: 0 0 10px 0;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   #speed {
     font-weight: bold;
@@ -47,25 +47,31 @@
     font-style: italic;
   }
   #radioBar {
-    flex: 0 0 50px;
+    flex: 0 0 60px;
     background: #111;
     display: flex;
     align-items: center;
     padding: 0 15px;
     border-top: 1px solid #222;
-    gap: 10px;
+    gap: 12px;
   }
   #radioBar button {
     background: #222;
     border: none;
     color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
     cursor: pointer;
+    font-weight: 600;
     transition: background 0.3s ease;
   }
   #radioBar button:hover {
     background: #555;
+  }
+  #radioLabel {
+    color: #eee;
+    font-size: 1rem;
+    user-select: none;
   }
 </style>
 </head>
@@ -81,8 +87,9 @@
   </div>
 
   <div id="radioBar">
-    <audio id="radio" autoplay muted></audio>
+    <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
     <button id="muteBtn">Unmute Radio</button>
+    <div id="radioLabel">Local Cape Coral Radio (KEXP vibes)</div>
   </div>
 
   <script>
@@ -118,7 +125,7 @@
     const muteBtn = document.getElementById("muteBtn");
 
     muteBtn.addEventListener('click', () => {
-      if (radio.muted) {
+      if(radio.muted){
         radio.muted = false;
         muteBtn.textContent = "Mute Radio";
       } else {
@@ -144,7 +151,6 @@
           onReady: () => {
             player.playVideo();
             startSim();
-            loadRadioStream();
           }
         }
       });
@@ -169,24 +175,6 @@
           eventBox.textContent = events[Math.floor(Math.random() * events.length)];
         }
       }, 2000);
-    }
-
-    async function loadRadioStream() {
-      try {
-        const response = await fetch('https://de1.api.radio-browser.info/json/stations/search?country=United States&state=Florida&limit=10');
-        const stations = await response.json();
-        // Filter for Cape Coral or something close (if you want)
-        const capeCoralStations = stations.filter(s => s.name.toLowerCase().includes('cape coral') || s.state.toLowerCase().includes('florida'));
-        const station = capeCoralStations[0] || stations[0]; // fallback to first if no cape coral
-        if (station && station.url_resolved) {
-          radio.src = station.url_resolved;
-          radio.play().catch(() => console.log('Autoplay blocked, user interaction needed'));
-        } else {
-          console.log('No station found with stream URL');
-        }
-      } catch (e) {
-        console.error('Failed to load radio stream:', e);
-      }
     }
   </script>
 </body>
