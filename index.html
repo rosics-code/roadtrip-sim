@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cape Coral Road Trip Sim with Dual Audio Controls</title>
+  <title>Cape Coral Road Trip Sim with Mini Radio Player</title>
   <style>
     html, body {
       margin: 0; padding: 0; overflow: hidden;
@@ -46,44 +46,42 @@
       font-size: 0.9rem;
       font-style: italic;
     }
-    #radioBox {
+    #radioMiniPlayer {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
+      border-radius: 14px;
       padding: 10px 15px;
-      border-radius: 12px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       z-index: 20;
-      width: 210px;
+      width: 220px;
       font-size: 14px;
       user-select: none;
+      box-shadow: 0 0 10px #0ff;
     }
-    #radioControls {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      gap: 8px;
-    }
-    button {
+    #radioMiniPlayer button {
       background: #222;
       border: none;
       color: white;
-      padding: 8px 10px;
+      padding: 6px 10px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
       transition: background 0.3s ease;
+      flex-shrink: 0;
     }
-    button:hover {
-      background: #555;
+    #radioMiniPlayer button:hover {
+      background: #0ff;
+      color: #000;
+    }
+    #radioVolume {
+      width: 80px;
     }
     audio {
-      width: 100%;
-      outline: none;
+      display: none; /* hide default controls */
     }
   </style>
 </head>
@@ -96,19 +94,17 @@
       <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
       <div id="event">Smooth driving in paradise ☀️</div>
     </div>
-    
-    <div id="radioBox">
+    <div id="radioMiniPlayer">
       <div>Local Cape Coral Radio (KEXP vibes)</div>
-      <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
-      <div id="radioControls">
-        <button id="muteRadio">Unmute Radio</button>
-        <button id="muteYT">Unmute Video</button>
-      </div>
+      <button id="radioPlayPause">Pause</button>
+      <input type="range" id="radioVolume" min="0" max="1" step="0.05" value="0" />
     </div>
   </div>
 
+  <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
+
   <script>
-    // Load YouTube IFrame API async
+    // YouTube API load
     let tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
@@ -136,29 +132,29 @@
     const locationDisplay = document.getElementById("location");
     const speedDisplay = document.getElementById("speed");
     const eventBox = document.getElementById("event");
-    const radio = document.getElementById("radio");
-    const muteRadioBtn = document.getElementById("muteRadio");
-    const muteYTBtn = document.getElementById("muteYT");
 
-    muteRadioBtn.addEventListener('click', () => {
-      if(radio.muted){
-        radio.muted = false;
-        muteRadioBtn.textContent = "Mute Radio";
-        radio.play().catch(() => {});
+    const radio = document.getElementById("radio");
+    const playPauseBtn = document.getElementById("radioPlayPause");
+    const volumeSlider = document.getElementById("radioVolume");
+
+    playPauseBtn.addEventListener('click', () => {
+      if (radio.paused) {
+        radio.play();
+        playPauseBtn.textContent = "Pause";
       } else {
-        radio.muted = true;
-        muteRadioBtn.textContent = "Unmute Radio";
+        radio.pause();
+        playPauseBtn.textContent = "Play";
       }
     });
 
-    muteYTBtn.addEventListener('click', () => {
-      if(!player) return;
-      if(player.isMuted()){
-        player.unMute();
-        muteYTBtn.textContent = "Mute Video";
-      } else {
-        player.mute();
-        muteYTBtn.textContent = "Unmute Video";
+    volumeSlider.addEventListener('input', () => {
+      radio.volume = volumeSlider.value;
+      if (volumeSlider.value > 0 && radio.paused) {
+        radio.play();
+        playPauseBtn.textContent = "Pause";
+      } else if (volumeSlider.value == 0) {
+        radio.pause();
+        playPauseBtn.textContent = "Play";
       }
     });
 
