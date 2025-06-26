@@ -1,375 +1,292 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cape Coral Road Trip Sim - Radio & Apple Music Connect Mode</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap');
-    html, body {
-      margin: 0; padding: 0; overflow: hidden;
-      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background: black; color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    #bg {
-      flex: 1 1 auto;
-      position: relative;
-      overflow: hidden;
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    #overlay {
-      position: absolute;
-      top: 20px; left: 20px;
-      background: rgba(0,0,0,0.7);
-      padding: 15px;
-      border-radius: 12px;
-      backdrop-filter: blur(5px);
-      width: 320px;
-      max-width: 90vw;
-      z-index: 10;
-    }
-    #overlay h1 {
-      margin: 0 0 10px 0;
-      font-size: 1.3rem;
-    }
-    #speed {
-      font-weight: 600;
-    }
-    #event {
-      margin-top: 10px;
-      font-style: italic;
-      font-size: 0.9rem;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Road Trip Vibes - SoundCloud + Radio Toggle</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap');
+  html, body {
+    margin:0; padding:0; height:100vh; overflow:hidden;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: black;
+    color: white;
+    display: flex;
+    flex-direction: column;
+  }
+  #bg-video {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+  #overlay {
+    position: absolute;
+    top: 20px; left: 20px;
+    background: rgba(0,0,0,0.7);
+    padding: 15px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    width: 320px;
+    max-width: 90vw;
+    z-index: 10;
+  }
+  #overlay h1 {
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+  }
+  #speed {
+    font-weight: 600;
+  }
+  #event {
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
 
-    /* Apple Lockscreen style radio/music player */
-    #audioPlayer {
-      position: absolute;
-      bottom: 24px;
-      right: 24px;
-      width: 280px;
-      height: 60px;
-      background: rgba(255 255 255 / 0.12);
-      border-radius: 9999px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 16px;
-      color: white;
-      user-select: none;
-      transition: background 0.3s ease;
-      cursor: default;
-      z-index: 25;
-      font-weight: 600;
-      font-size: 15px;
-    }
-    #audioPlayer:hover {
-      background: rgba(255 255 255 / 0.2);
-    }
-    #audioName {
-      flex-grow: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      user-select: text;
-    }
-    #btnPlayPause, #btnUnmuteVideo, #btnToggleSource {
-      background: rgba(255 255 255 / 0.3);
-      border: none;
-      border-radius: 9999px;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 18px;
-      transition: background 0.25s ease;
-      cursor: pointer;
-      flex-shrink: 0;
-      user-select: none;
-    }
-    #btnPlayPause:hover, #btnUnmuteVideo:hover, #btnToggleSource:hover {
-      background: rgba(255 255 255 / 0.5);
-      color: #0ff;
-    }
-    #volumeContainer {
-      position: relative;
-      width: 120px;
-      overflow: hidden;
-      transition: width 0.3s ease;
-      width: 0;
-      opacity: 0;
-      margin-left: 8px;
-    }
-    #audioPlayer:hover #volumeContainer,
-    #volumeContainer:focus-within {
-      width: 120px;
-      opacity: 1;
-    }
-    #volumeSlider {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 4px;
-      border-radius: 4px;
-      background: rgba(255 255 255 / 0.3);
-      cursor: pointer;
-      outline: none;
-      transition: background 0.3s ease;
-    }
-    #volumeSlider:hover {
-      background: rgba(255 255 255 / 0.5);
-    }
-    #volumeSlider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #0ff;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: -6px;
-      box-shadow: 0 0 6px #0ff;
-    }
-    #volumeSlider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #0ff;
-      cursor: pointer;
-      box-shadow: 0 0 6px #0ff;
-    }
-    audio {
-      display: none;
-    }
-
-  </style>
+  #audioPlayer {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 280px;
+    height: 60px;
+    background: rgba(255 255 255 / 0.12);
+    border-radius: 9999px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    color: white;
+    user-select: none;
+    transition: background 0.3s ease;
+    cursor: default;
+    z-index: 25;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  #audioPlayer:hover {
+    background: rgba(255 255 255 / 0.2);
+  }
+  #audioName {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: text;
+  }
+  button {
+    background: rgba(255 255 255 / 0.3);
+    border: none;
+    border-radius: 9999px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    transition: background 0.25s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  button:hover {
+    background: rgba(255 255 255 / 0.5);
+    color: #0ff;
+  }
+  #volumeContainer {
+    position: relative;
+    width: 120px;
+    overflow: hidden;
+    transition: width 0.3s ease;
+    width: 0;
+    opacity: 0;
+    margin-left: 8px;
+  }
+  #audioPlayer:hover #volumeContainer,
+  #volumeContainer:focus-within {
+    width: 120px;
+    opacity: 1;
+  }
+  #volumeSlider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255 255 255 / 0.3);
+    cursor: pointer;
+    outline: none;
+    transition: background 0.3s ease;
+  }
+  #volumeSlider:hover {
+    background: rgba(255 255 255 / 0.5);
+  }
+  #volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0ff;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: -6px;
+    box-shadow: 0 0 6px #0ff;
+  }
+  #volumeSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #0ff;
+    cursor: pointer;
+    box-shadow: 0 0 6px #0ff;
+  }
+</style>
 </head>
 <body>
-  <div id="bg">
-    <div id="player"></div>
-    <div id="overlay">
-      <h1>🌴 Cape Coral Road Trip Sim</h1>
-      <div><strong>Location:</strong> <span id="location">Loading...</span></div>
-      <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
-      <div id="event">Smooth driving in paradise ☀️</div>
-    </div>
 
-    <div id="audioPlayer" tabindex="0" aria-label="Audio player controls">
-      <div id="audioName" title="Local Cape Coral Radio">Local Cape Coral Radio (KEXP vibes)</div>
-      <button id="btnToggleSource" aria-label="Switch audio source">📻</button>
-      <button id="btnPlayPause" aria-label="Play or pause audio">🔈</button>
-      <div id="volumeContainer">
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0" aria-label="Audio volume" />
-      </div>
-      <button id="btnUnmuteVideo" aria-label="Unmute or mute video audio">🎵</button>
-    </div>
+<video id="bg-video" autoplay muted loop playsinline>
+  <source src="https://cdn.videvo.net/videvo_files/video/free/2019-08/small_watermarked/190719_04_CapeCoral_1080p_003_preview.webm" type="video/webm">
+  Your browser does not support the video tag.
+</video>
+
+<div id="overlay">
+  <h1>🌴 Cape Coral Road Trip Sim</h1>
+  <div><strong>Location:</strong> <span id="location">Hancock Bridge Parkway</span></div>
+  <div><strong>Speed:</strong> <span id="speed">63</span> mph</div>
+  <div id="event">Smooth driving in paradise ☀️</div>
+</div>
+
+<div id="audioPlayer" tabindex="0" aria-label="Audio player controls">
+  <div id="audioName" title="SoundCloud Playlist">SoundCloud Playlist</div>
+  <button id="btnToggleSource" aria-label="Switch audio source">📻</button>
+  <button id="btnPlayPause" aria-label="Play or pause audio">▶️</button>
+  <div id="volumeContainer">
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" aria-label="Audio volume" />
   </div>
+</div>
 
-  <audio id="radio" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" autoplay muted></audio>
+<audio id="scAudio" crossorigin="anonymous" preload="auto" src=""></audio>
+<audio id="radioAudio" preload="auto" src="https://kexp-mp3-128.streamguys1.com/kexp128.mp3" muted></audio>
 
-  <script>
-    // Load YouTube API
-    let tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.head.appendChild(tag);
+<script>
+  // Road trip sim vars
+  const locations = {
+    0: "Hancock Bridge Parkway",
+    31: "Cape Coral Parkway",
+    90: "Del Prado Boulevard",
+    180: "NE Pine Island Road",
+    270: "Chiquita Boulevard",
+    360: "Veterans Parkway",
+    420: "Burnt Store Road",
+    480: "Leaving Cape Coral"
+  };
+  const events = [
+    "Florida Man cut you off with no blinker 😤",
+    "You passed a lizard the size of a dog 🦎",
+    "Local radio is playing only Pitbull 🔥",
+    "Gas station pizza smelled... suspicious 🍕",
+    "You waved at a snowbird and they flipped you off 🖕😬",
+    "Road work... again. Classic Florida 🧱"
+  ];
+  const locationDisplay = document.getElementById("location");
+  const speedDisplay = document.getElementById("speed");
+  const eventBox = document.getElementById("event");
 
-    let player;
-    let currentSource = "radio"; // radio or youtube
-    const audioNameEl = document.getElementById('audioName');
-    const btnToggleSource = document.getElementById('btnToggleSource');
-    const btnPlayPause = document.getElementById('btnPlayPause');
-    const volumeSlider = document.getElementById('volumeSlider');
-    const btnUnmuteVideo = document.getElementById('btnUnmuteVideo');
-    const radio = document.getElementById('radio');
+  // Audio elements & UI
+  const scAudio = document.getElementById('scAudio');
+  const radioAudio = document.getElementById('radioAudio');
+  const btnToggleSource = document.getElementById('btnToggleSource');
+  const btnPlayPause = document.getElementById('btnPlayPause');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const audioName = document.getElementById('audioName');
 
-    const youtubeSongs = [
-      { id: '3tmd-ClpJxA', title: "Juice WRLD - Lucid Dreams" },
-      { id: '9h4D9My0MYc', title: "Travis Scott - SICKO MODE" },
-      { id: 'e-ORhEE9VVg', title: "Taylor Swift - Blank Space" },
-    ];
-    let currentSongIndex = 0;
+  let currentSource = 'soundcloud'; // or 'radio'
+  let isPlaying = false;
 
-    // Setup YouTube player
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player', {
-        videoId: youtubeSongs[currentSongIndex].id,
-        playerVars: {
-          autoplay: 0,
-          mute: 1,
-          controls: 0,
-          modestbranding: 1,
-          rel: 0,
-          showinfo: 0,
-          start: 31,
-        },
-        events: {
-          onReady: () => {
-            if(currentSource === "youtube"){
-              player.playVideo();
-            }
-            startSim();
-          },
-          onStateChange: e => {
-            // Loop video when ended
-            if(e.data === YT.PlayerState.ENDED && currentSource === "youtube"){
-              nextSong();
-            }
-          }
-        }
-      });
-    }
+  // Example SoundCloud track (replace with your track URL or stream url)
+  const scTrackUrl = 'https://api.soundcloud.com/tracks/293/stream?client_id=YOUR_CLIENT_ID'; 
+  // Note: Replace YOUR_CLIENT_ID with your actual SoundCloud client id
 
-    // Road trip sim variables
-    const locations = {
-      0: "Hancock Bridge Parkway",
-      31: "Cape Coral Parkway",
-      90: "Del Prado Boulevard",
-      180: "NE Pine Island Road",
-      270: "Chiquita Boulevard",
-      360: "Veterans Parkway",
-      420: "Burnt Store Road",
-      480: "Leaving Cape Coral"
-    };
+  scAudio.src = scTrackUrl;
 
-    const events = [
-      "Florida Man cut you off with no blinker 😤",
-      "You passed a lizard the size of a dog 🦎",
-      "Local radio is playing only Pitbull 🔥",
-      "Gas station pizza smelled... suspicious 🍕",
-      "You waved at a snowbird and they flipped you off 🖕😬",
-      "Road work... again. Classic Florida 🧱"
-    ];
+  function updatePlayPauseIcon() {
+    btnPlayPause.textContent = isPlaying ? '⏸️' : '▶️';
+  }
 
-    const locationDisplay = document.getElementById("location");
-    const speedDisplay = document.getElementById("speed");
-    const eventBox = document.getElementById("event");
-
-    // Simulate location and events
-    function startSim() {
-      setInterval(() => {
-        const currentTime = currentSource === "youtube" && player ? player.getCurrentTime() : 0;
-
-        let currentLoc = "Hancock Bridge Parkway";
-        for (const t in locations) {
-          if (currentTime >= t) currentLoc = locations[t];
-        }
-        locationDisplay.textContent = currentLoc;
-
-        speedDisplay.textContent = Math.floor(50 + Math.random() * 15);
-
-        if (Math.random() < 0.3) {
-          eventBox.textContent = events[Math.floor(Math.random() * events.length)];
-        }
-      }, 2000);
-    }
-
-    // Switch audio source radio <> youtube
-    btnToggleSource.addEventListener('click', () => {
-      if(currentSource === "radio"){
-        // Switch to youtube song
-        currentSource = "youtube";
-        audioNameEl.textContent = youtubeSongs[currentSongIndex].title;
-        radio.pause();
-        player.loadVideoById(youtubeSongs[currentSongIndex].id, 31);
-        player.unMute();
-        player.playVideo();
-        volumeSlider.value = 0.5;
-        updatePlayPauseBtn(true);
-        btnToggleSource.textContent = "🎵";
+  btnPlayPause.addEventListener('click', () => {
+    if (currentSource === 'soundcloud') {
+      if (scAudio.paused) {
+        scAudio.play();
+        isPlaying = true;
       } else {
-        // Switch to radio
-        currentSource = "radio";
-        audioNameEl.textContent = "Local Cape Coral Radio (KEXP vibes)";
-        player.pauseVideo();
-        player.mute();
-        radio.volume = 0.5;
-        radio.play();
-        volumeSlider.value = 0.5;
-        updatePlayPauseBtn(false);
-        btnToggleSource.textContent = "📻";
+        scAudio.pause();
+        isPlaying = false;
       }
-    });
-
-    // Play/pause button for current source
-    btnPlayPause.addEventListener('click', () => {
-      if(currentSource === "radio"){
-        if(radio.paused){
-          radio.play();
-          updatePlayPauseBtn(false);
-        } else {
-          radio.pause();
-          updatePlayPauseBtn(true);
-        }
+    } else {
+      if (radioAudio.paused) {
+        radioAudio.play();
+        isPlaying = true;
       } else {
-        if(player.getPlayerState() !== YT.PlayerState.PLAYING){
-          player.playVideo();
-          updatePlayPauseBtn(true);
-        } else {
-          player.pauseVideo();
-          updatePlayPauseBtn(false);
-        }
+        radioAudio.pause();
+        isPlaying = false;
       }
-    });
-
-    // Update play/pause icon based on paused or playing
-    function updatePlayPauseBtn(pauseState) {
-      // pauseState true means paused, false means playing
-      btnPlayPause.textContent = pauseState ? "🔇" : "🔈";
     }
+    updatePlayPauseIcon();
+  });
 
-    // Volume slider updates for current source
-    volumeSlider.addEventListener('input', () => {
-      let vol = volumeSlider.value;
-      if(currentSource === "radio"){
-        radio.volume = vol;
-        if(vol > 0 && radio.paused) radio.play();
-        if(vol === "0") radio.pause();
-      } else {
-        if(player) player.setVolume(vol * 100);
-      }
-    });
-
-    // Video unmute button toggle (only affects YouTube player)
-    btnUnmuteVideo.addEventListener('click', () => {
-      if(!player) return;
-      if(player.isMuted()){
-        player.unMute();
-        btnUnmuteVideo.textContent = "🔈";
-      } else {
-        player.mute();
-        btnUnmuteVideo.textContent = "🎵";
-      }
-    });
-
-    // Move to next YouTube song on video end
-    function nextSong() {
-      currentSongIndex = (currentSongIndex + 1) % youtubeSongs.length;
-      audioNameEl.textContent = youtubeSongs[currentSongIndex].title;
-      player.loadVideoById(youtubeSongs[currentSongIndex].id, 0);
-      player.playVideo();
+  btnToggleSource.addEventListener('click', () => {
+    if (currentSource === 'soundcloud') {
+      // Switch to radio
+      currentSource = 'radio';
+      scAudio.pause();
+      radioAudio.muted = false;
+      radioAudio.play();
+      audioName.textContent = 'Live Radio (KEXP vibes)';
+      isPlaying = true;
+    } else {
+      // Switch to SoundCloud
+      currentSource = 'soundcloud';
+      radioAudio.pause();
+      scAudio.play();
+      audioName.textContent = 'SoundCloud Playlist';
+      isPlaying = true;
     }
+    updatePlayPauseIcon();
+  });
 
-    // Initialize on load
-    window.addEventListener('load', () => {
-      volumeSlider.value = 0;
-      updatePlayPauseBtn(true);
-      btnUnmuteVideo.textContent = "🎵";
-      // Start radio muted
-      radio.muted = true;
-      radio.pause();
-    });
-  </script>
+  volumeSlider.addEventListener('input', () => {
+    const vol = volumeSlider.value;
+    if(currentSource === 'soundcloud') {
+      scAudio.volume = vol;
+    } else {
+      radioAudio.volume = vol;
+    }
+  });
+
+  // Start road trip simulation
+  setInterval(() => {
+    const randomTime = Date.now() / 1000;
+    let currentLoc = "Hancock Bridge Parkway";
+    for (const t in locations) {
+      if (randomTime % 500 >= t) currentLoc = locations[t];
+    }
+    locationDisplay.textContent = currentLoc;
+    speedDisplay.textContent = Math.floor(50 + Math.random() * 15);
+    if(Math.random() < 0.3){
+      eventBox.textContent = events[Math.floor(Math.random() * events.length)];
+    }
+  }, 2000);
+
+  // Initialize volume & icons
+  volumeSlider.value = 0.5;
+  scAudio.volume = 0.5;
+  radioAudio.volume = 0.5;
+  updatePlayPauseIcon();
+</script>
 </body>
 </html>
