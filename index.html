@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cape Coral Road Trip Simulator</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+    #bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+    }
+    #overlay {
+      position: absolute;
+      top: 20px; left: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 300px;
+    }
+    #overlay h1 {
+      margin: 0 0 10px 0;
+      font-size: 1.2rem;
+    }
+    .bar {
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .fill {
+      height: 10px;
+      background: limegreen;
+      width: 100%;
+      transition: width 0.3s ease;
+    }
+    #event {
+      font-style: italic;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg">
+    <iframe id="yt" width="100%" height="100%" 
+      src="https://www.youtube.com/embed/1gj_W9LUH-o?autoplay=1&controls=0&mute=1&start=0&enablejsapi=1&modestbranding=1&rel=0&loop=1&playlist=1gj_W9LUH-o"
+      frameborder="0" allowfullscreen>
+    </iframe>
+  </div>
+
+  <div id="overlay">
+    <h1>🌴 Cape Coral Road Trip</h1>
+    <div><strong>Location:</strong> <span id="location">Cape Coral Parkway</span></div>
+    <div><strong>Fuel:</strong> 
+      <div class="bar"><div id="fuelBar" class="fill"></div></div>
+    </div>
+    <div><strong>Speed:</strong> <span id="speed">62</span> mph</div>
+    <div id="event">Cruisin’ in Florida 🌞</div>
+  </div>
+
+  <script>
+    const locations = {
+      0: "Cape Coral Parkway",
+      240: "Veterans Parkway",
+      600: "Del Prado Blvd",
+      960: "Pine Island Road",
+      1200: "Leaving City Limits"
+    };
+
+    const events = [
+      "A wild gator waddled across the road 🐊",
+      "You passed 3 Dunkins in a row 😮",
+      "Florida Man waved at you with a snake 🐍",
+      "Someone blasted Pitbull from their boat 🚤",
+      "It’s 94°F and your AC is hanging on for dear life 😩",
+      "You stopped for gas station pizza… bold choice."
+    ];
+
+    let currentTime = 0;
+    let fuel = 100;
+    const maxTime = 1200;
+    const locationDisplay = document.getElementById("location");
+    const fuelBar = document.getElementById("fuelBar");
+    const speedDisplay = document.getElementById("speed");
+    const eventBox = document.getElementById("event");
+
+    setInterval(() => {
+      // Fake time passing
+      currentTime += 5;
+      fuel -= 0.4;
+
+      // Update location
+      let loc = "Cape Coral Parkway";
+      for (let t in locations) {
+        if (currentTime >= t) loc = locations[t];
+      }
+      locationDisplay.textContent = loc;
+
+      // Update fuel bar
+      fuelBar.style.width = Math.max(fuel, 0) + "%";
+      if (fuel < 20) fuelBar.style.background = "red";
+
+      // Random speed
+      speedDisplay.textContent = Math.floor(50 + Math.random() * 20);
+
+      // Random event (30% chance)
+      if (Math.random() < 0.3) {
+        const randEvent = events[Math.floor(Math.random() * events.length)];
+        eventBox.textContent = randEvent;
+      }
+
+      // Reset loop
+      if (currentTime >= maxTime) {
+        currentTime = 0;
+        fuel = 100;
+        eventBox.textContent = "Refueled. Back on the road! 🛣️";
+        fuelBar.style.background = "limegreen";
+      }
+    }, 2000); // update every 2 sec
